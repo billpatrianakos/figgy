@@ -5,7 +5,7 @@ support for overriding the values based on environment, hostname, locale, or
 any other arbitrary thing you happen to come up with.
 
 ## Travis-CI Build Status
-[![Build Status](https://secure.travis-ci.org/pd/figgy.png)](http://travis-ci.org/pd/figgy)
+[![Build Status](https://secure.travis-ci.org/kingmt/figgy.png)](http://travis-ci.org/kingmt/figgy)
 
 ## Documentation
 [yardocs](http://rdoc.info/github/pd/figgy/master/frames)
