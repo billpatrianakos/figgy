@@ -42,6 +42,12 @@ class Figgy
     end
   end
 
+  # RSpec calls to_ary on a should check
+  # quick and dirty hack until I figure out what should be done
+  def to_ary
+    nil
+  end
+
   def method_missing(m, *args, &block)
     @store.get(m)
   end
