@@ -41,6 +41,62 @@ Access it as a dottable, indifferent-access hash:
     AppConfig["foo"]["some_key"]
     AppConfig[:foo].some_key
 
+Multiple overlays can be defined to cascade    
+    AppConfig = Figgy.build do |config|
+      config.root = Rails.root.join('etc')
+      config.define_overlay :default, nil
+
+      # config.foo is then updated with values from etc/development/foo.yml
+      #                                        then etc/staging/foo.yml
+      #                                        then etc/production/foo.yml
+      # up to the current Rails environment
+      config.define_overlay(:environment), ['development', 'staging', 'production'].slice(0..(env.index(Rails.env)))
+    end
+
+Multiple overlays can be defined to be combined
+    AppConfig = Figgy.build do |config|
+      config.root = Rails.root.join('etc')
+      config.define_overlay :default, nil
+
+      # config.foo is then updated with values from etc/development/foo.yml
+      #                                        then etc/staging/foo.yml
+      #                                        then etc/production/foo.yml
+      #                                        from etc/US/foo.yml
+      #                                        from etc/development_US/foo.yml
+      #                                        then etc/staging_US/foo.yml
+      #                                        then etc/production_US/foo.yml
+      # up to the current Rails environment
+      config.define_overlay(:environment), ['development', 'staging', 'production'].slice(0..(env.index(Rails.env)))
+      config.define_overlay :country, 'US'
+      config.define_combined_overlay :environment, :country
+    end
+
+Multiple cascading overlays can be defined to be combined
+    AppConfig = Figgy.build do |config|
+      config.root = Rails.root.join('etc')
+      config.define_overlay :default, nil
+
+      # config.foo is then updated with values from etc/development/foo.yml
+      #                                        then etc/staging/foo.yml
+      #                                        then etc/production/foo.yml
+      #                                        from etc/a1/foo.yml
+      #                                        from etc/b2/foo.yml
+      #                                        from etc/c3/foo.yml
+      #                                        from etc/development_a1/foo.yml
+      #                                        from etc/development_b2/foo.yml
+      #                                        from etc/development_c3/foo.yml
+      #                                        then etc/staging_a1/foo.yml
+      #                                        then etc/staging_b2/foo.yml
+      #                                        then etc/staging_c3/foo.yml
+      #                                        then etc/production_a1/foo.yml
+      #                                        then etc/production_b2/foo.yml
+      #                                        then etc/production_c3/foo.yml
+      # up to the current Rails environment
+      config.define_overlay(:environment), %w(development staging production).slice(0..(env.index(Rails.env)))
+      config.define_overlay :arbitrary, %w(a1 b2 c3)
+      config.define_combined_overlay :environment, :arbitrary
+    end
+
 Multiple root directories may be specified, so that configuration files live in
 more than one place (say, in gems):
 
@@ -54,6 +110,34 @@ root directory added first (typically the one immediately within the application
 has highest precedence. In this way, defaults can be inherited from libraries,
 but then overridden when necessary within the application.
 
+Pivot overlays can be defined to provide alternate datasets, an I18n example:
+    AppConfig = Figgy.build do |config|
+      config.root = Rails.root.join('etc')
+      config.define_overlay :default, nil
+      config.define_overlay :environment, :development
+      config.define_pivot_overlay :language, :lang
+    end
+
+    Assuming the following directory structure:
+      etc
+       |- foo.yml
+       |- development
+       |   |- foo.yml
+       |- lang_en
+       |   |- foo.yml
+       |   |- development
+       |       |- foo.yml
+       |- lang.es
+       |   |- foo.yml
+       |   |- development
+       |       |- foo.yml
+
+    AppConfig.foo.value is defined in etc/foo.yml + etc/development/foo.yml
+    AppConfig.language('en').foo.value is defined by etc/foo.yml + etc/development/foo.yml + etc/lang_en/foo.yml + etc/lang_en/development/foo.yml
+    AppConfig.language('es').foo.value is defined by etc/foo.yml + etc/development/foo.yml + etc/lang_es/foo.yml + etc/lang_es/development/foo.yml
+    AppConfig.language('de').foo.value is defined by etc/foo.yml + etc/development/foo.yml
+
 ## Thanks
 
-This was written on [Enova Financial's](http://www.enovafinancial.com) dime/time.
+This was written by pd on [Enova Financial's](http://www.enovafinancial.com) dime/time.
+Extensions written by kingmt from [<TKML>](http://ww.tkml.com), a [Tukaiz](http://www.tukaiz.com) subsidiary.
