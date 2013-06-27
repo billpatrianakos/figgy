@@ -1,10 +1,13 @@
 class Figgy
   class Configuration
     # The directories in which to search for configuration files
-    attr_reader :roots
+    attr_accessor :roots
 
     # The list of defined overlays
     attr_reader :overlays
+
+    #
+    attr_reader :pivot, :pivot_prefix
 
     # Whether to reload a configuration file each time it is accessed
     attr_accessor :always_reload
@@ -50,6 +53,10 @@ class Figgy
       @roots.unshift File.expand_path(path)
     end
 
+    def prefix_root(path)
+      @roots.push File.expand_path(path)
+    end
+
     # @see #always_reload=
     def always_reload?
       !!@always_reload
@@ -80,6 +87,25 @@ class Figgy
       else
         @overlays << [name, value]
       end
+    end
+
+    # Adds a pivot overlay named +name+, using prefix +prefix+.
+    #
+    # @param name is the internal name for the overlay
+    # @param prefix is the prefix of the directories of the overlay
+    # @example An I18n overlay
+    #   config.define_pivot_overlay :language, 'lang'
+    # any subdirectory of a ROOT directory named 'lang_*' will be loaded
+    # as an alternate data source, such as lang_en and lang_es
+    #
+    # Adds methods to Figgy:
+    #   +name+(+pivot+)    will return a Figgy object for the pivot +param+
+    #   +name+=(+pivot+)   until +name+ is changed all calls will reference the pivot
+    def define_pivot_overlay(name, prefix)
+      prefix ||= name
+      prefix.to_s << '_'
+      @pivot = name
+      @pivot_prefix = prefix
     end
 
     # Adds an overlay using the combined values of other overlays.

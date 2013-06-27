@@ -21,6 +21,10 @@ class Figgy
       end
     end
 
+    def method_missing(m, *args, &block)
+      get(m)
+    end
+
     # @return [Array<String>] the list of currently loaded keys
     def keys
       @cache.keys

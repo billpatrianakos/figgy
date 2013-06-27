@@ -32,13 +32,38 @@ class Figgy
     new(config)
   end
 
+  attr_reader :pivots
+
   def initialize(config)
     @config = config
     @finder = Finder.new(config)
-    @store  = Store.new(@finder, @config)
-
-    if @config.preload?
+    @store  = Store.new(@finder, config)
+    if config.preload?
       @finder.all_key_names.each { |key| @store.get(key) }
+    end
+    if config.pivot
+      # create method named +pivot+
+      self.class.class_eval <<-EOF, __FILE__, __LINE__
+         def #{config.pivot}(pivot_point)
+           pivots[pivot_point]
+         end
+      EOF
+      orig_roots = config.roots
+      # create hash of additional finders/stores for each +pivot_prefix found
+      @pivots = Hash.new
+      @pivots.default= @store
+      Dir[File.join(config.roots.first,"#{config.pivot_prefix}_*")].each do |pivot_root|
+        pivot_name = pivot_root.gsub(/.*#{config.pivot_prefix}_/,'')
+        pivot_config = config.clone
+        pivot_config.roots = orig_roots.clone
+        pivot_config.prefix_root(pivot_root)
+        pivot_finder = Finder.new(pivot_config)
+        pivot_store  = Store.new(pivot_finder, pivot_config)
+        if config.preload?
+          pivot_finder.all_key_names.each { |key| pivot_store.get(key) }
+        end
+        @pivots[pivot_name] = pivot_store
+      end
     end
   end
 
