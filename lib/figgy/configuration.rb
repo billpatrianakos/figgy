@@ -94,7 +94,7 @@ class Figgy
     def overlay_dirs
       return @roots if @overlays.empty?
       overlay_values.map { |overlay|
-        @roots.map { |root| overlay ? File.join(root, overlay) : root }
+        @roots.map { |root| File.join(root, overlay.to_s) }
       }.flatten.uniq
     end
 
