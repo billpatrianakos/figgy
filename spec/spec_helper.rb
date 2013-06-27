@@ -22,8 +22,10 @@ module Figgy::SpecHelpers
 end
 
 RSpec.configure do |c|
+  c.filter_run_excluding :exclude_ruby => lambda {|version|
+    !(RUBY_VERSION.to_s =~ /^ruby-#{version.to_s}/)
+  }
   c.include Aruba::Api
   c.include Figgy::SpecHelpers
-
   c.after { FileUtils.rm_rf(current_dir) }
 end

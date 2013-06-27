@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe Figgy do
   context "freezing" do
-    it "leaves results unfrozen by default" do
+    it "leaves results unfrozen by default", :exclude_ruby => 2.0 do
       write_config 'values', 'foo: 1'
       test_config.values.foo.should_not be_frozen
     end
