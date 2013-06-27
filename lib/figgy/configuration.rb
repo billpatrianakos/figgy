@@ -75,7 +75,11 @@ class Figgy
     #   config.define_overlay(:environment) { Rails.env }
     def define_overlay(name, value = nil)
       value = yield if block_given?
-      @overlays << [name, value]
+      if value.is_a?(Array)
+        value.each {|v| @overlays << [name, v]}
+      else
+        @overlays << [name, value]
+      end
     end
 
     # Adds an overlay using the combined values of other overlays.
@@ -86,8 +90,9 @@ class Figgy
     #   config.define_combined_overlay :environment, :country
     def define_combined_overlay(*names)
       combined_name = names.join("_").to_sym
-      value = names.map { |name| overlay_value(name) }.join("_")
-      @overlays << [combined_name, value]
+      first = overlay_value(names.first)
+      last = overlay_value(names.last)
+      first.product(last).each {|arr| @overlays << [combined_name, arr.join("_")]}
     end
 
     # @return [Array<String>] the list of directories to search for config files
@@ -122,9 +127,9 @@ class Figgy
     private
 
     def overlay_value(name)
-      overlay = @overlays.find { |n, v| name == n }
+      overlay = @overlays.select { |n, v| name == n }
       raise "No such overlay: #{name.inspect}" unless overlay
-      overlay.last
+      overlay.map &:last
     end
 
     def overlay_values
