@@ -28,11 +28,3 @@ describe Figgy do
     config.inspect.should == "#<Figgy (2 keys): values wtf>"
   end
 end
-
-describe Figgy do
-  describe 'CnuConfig drop-in compatibility' do
-    it "should maybe support path_formatter = some_proc.call(config_name, overlays)"
-    it "should support preload's all_key_names when using path_formatter"
-    it "should support preload's all_key_names when using path_formatter"
-  end
-end
