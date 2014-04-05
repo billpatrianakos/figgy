@@ -41,7 +41,7 @@ Access it as a dottable, indifferent-access hash:
     AppConfig["foo"]["some_key"]
     AppConfig[:foo].some_key
 
-Multiple overlays can be defined to cascade    
+Multiple overlays can be defined to cascade
     AppConfig = Figgy.build do |config|
       config.root = Rails.root.join('etc')
       config.define_overlay :default, nil
@@ -136,8 +136,21 @@ Pivot overlays can be defined to provide alternate datasets, an I18n example:
     AppConfig.language('en').foo.value is defined by etc/foo.yml + etc/development/foo.yml + etc/lang_en/foo.yml + etc/lang_en/development/foo.yml
     AppConfig.language('es').foo.value is defined by etc/foo.yml + etc/development/foo.yml + etc/lang_es/foo.yml + etc/lang_es/development/foo.yml
     AppConfig.language('de').foo.value is defined by etc/foo.yml + etc/development/foo.yml
+=======
+
+
+## Caveats
+
+Because the objects exposed by figgy are often hashes, all of the instance methods
+of Hash (and, of course, Enumerable) are available along the chain. But note that
+this means you can not use key names such as `size` or `each` with the dottable
+access style:
+
+    AppConfig.price.bulk   #=> 100.00
+    AppConfig.price.each   #=> attempts to invoke Hash#each
+    AppConfig.price[:each] #=> 50.00
 
 ## Thanks
 
 This was written by pd on [Enova Financial's](http://www.enovafinancial.com) dime/time.
-Extensions written by kingmt 
+Extensions written by kingmt
