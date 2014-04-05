@@ -140,4 +140,4 @@ Pivot overlays can be defined to provide alternate datasets, an I18n example:
 ## Thanks
 
 This was written by pd on [Enova Financial's](http://www.enovafinancial.com) dime/time.
-Extensions written by kingmt from [<TKML>](http://ww.tkml.com), a [Tukaiz](http://www.tukaiz.com) subsidiary.
+Extensions written by kingmt 
